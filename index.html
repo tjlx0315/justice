@@ -1,0 +1,558 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青少年禁毒知识大闯关</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .option-card:hover {
+            background-color: #f0f9ff;
+            border-color: #bae6fd;
+        }
+        .option-card.selected {
+            background-color: #e0f2fe;
+            border-color: #0ea5e9;
+            color: #0369a1;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .level-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .level-card {
+            transition: all 0.3s ease;
+        }
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <!-- 主容器 -->
+    <div id="app-container" class="w-full max-w-4xl glass-panel p-6 md:p-10 relative overflow-hidden min-h-[600px] flex flex-col">
+        
+        <!-- 头部导航 -->
+        <header class="flex justify-between items-center mb-8 border-b pb-4 border-gray-200">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <i class="fas fa-shield-alt text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 tracking-tight">青少年禁毒知识大闯关</h1>
+            </div>
+            <div id="user-info" class="hidden flex items-center gap-4">
+                <span class="text-sm text-gray-600">玩家: <span id="display-username" class="font-bold text-blue-600"></span></span>
+                <button onclick="backToMenu()" class="text-sm text-blue-500 hover:text-blue-700 underline"><i class="fas fa-home"></i> 返回主页</button>
+            </div>
+        </header>
+
+        <!-- 页面 1: 欢迎与登录 -->
+        <div id="page-login" class="flex-1 flex flex-col items-center justify-center fade-in">
+            <div class="text-center mb-10">
+                <img src="https://picsum.photos/seed/drugfree/200/200" alt="禁毒宣传插画，展示盾牌和绿色生命树" class="w-32 h-32 rounded-full mx-auto mb-6 shadow-lg object-cover">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">珍爱生命，远离毒品</h2>
+                <p class="text-gray-500">共3关，每关20题，挑战你的禁毒知识储备</p>
+            </div>
+            
+            <div class="w-full max-w-md space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">请输入您的姓名</label>
+                    <input type="text" id="username-input" placeholder="例如：张三" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                    <p id="login-error" class="text-red-500 text-sm mt-2 hidden"><i class="fas fa-exclamation-circle"></i> 姓名不能为空</p>
+                </div>
+                
+                <button onclick="showLevelSelect()" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg shadow-md flex items-center justify-center gap-2">
+                    <span>开始闯关</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="pt-6 border-t border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-gray-700"><i class="fas fa-trophy text-yellow-500 mr-2"></i>总积分排行榜</h3>
+                        <button onclick="clearLeaderboard()" class="text-xs text-red-400 hover:text-red-600 underline">清空记录</button>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 h-48 overflow-y-auto no-scrollbar" id="leaderboard-list">
+                        <div class="text-center text-gray-400 py-10">暂无排名数据</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面 2: 关卡选择 -->
+        <div id="page-level-select" class="hidden flex-1 flex flex-col items-center justify-center fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-8">请选择挑战关卡</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl px-4">
+                <!-- Level 1 -->
+                <div onclick="startLevel(0)" class="level-card bg-white p-6 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:border-blue-300 group">
+                    <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-4 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                        <i class="fas fa-seedling text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">第一关</h3>
+                    <p class="text-sm text-gray-500 mb-4">基础常识篇</p>
+                    <div class="text-xs text-gray-400">难度: ★☆☆</div>
+                </div>
+                <!-- Level 2 -->
+                <div onclick="startLevel(1)" class="level-card bg-white p-6 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:border-blue-300 group">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-4 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                        <i class="fas fa-balance-scale text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">第二关</h3>
+                    <p class="text-sm text-gray-500 mb-4">法律法规篇</p>
+                    <div class="text-xs text-gray-400">难度: ★★☆</div>
+                </div>
+                <!-- Level 3 -->
+                <div onclick="startLevel(2)" class="level-card bg-white p-6 rounded-xl shadow-md border border-gray-100 cursor-pointer hover:border-blue-300 group">
+                    <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                        <i class="fas fa-skull-crossbones text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">第三关</h3>
+                    <p class="text-sm text-gray-500 mb-4">综合进阶篇</p>
+                    <div class="text-xs text-gray-400">难度: ★★★</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面 3: 答题界面 -->
+        <div id="page-quiz" class="hidden flex-1 flex flex-col fade-in">
+            <!-- 进度条 -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <div class="flex justify-between text-sm text-gray-500 mb-4">
+                <span id="question-counter">第 1 / 20 题</span>
+                <span id="score-display">本关得分: 0</span>
+            </div>
+
+            <!-- 题目区域 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar pr-2">
+                <div class="mb-4">
+                    <span class="level-badge text-white text-xs px-2 py-1 rounded-full">当前关卡</span>
+                </div>
+                <h3 id="question-text" class="text-xl font-bold text-gray-800 mb-6 leading-relaxed">
+                    题目加载中...
+                </h3>
+
+                <div id="options-container" class="space-y-3">
+                    <!-- 选项将在此生成 -->
+                </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" class="bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed transition-all" disabled>
+                    下一题
+                </button>
+            </div>
+        </div>
+
+        <!-- 页面 4: 关卡结算 -->
+        <div id="page-level-result" class="hidden flex-1 flex flex-col items-center justify-center fade-in text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">关卡完成！</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                <!-- 得分卡片 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-gray-500 text-sm mb-2">本关得分</div>
+                    <div class="text-4xl font-bold text-blue-600" id="level-score">0</div>
+                    <div class="text-xs text-gray-400 mt-2">满分 100 分</div>
+                </div>
+                <!-- 正确率卡片 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-gray-500 text-sm mb-2">答对题数</div>
+                    <div class="text-4xl font-bold text-green-600" id="level-correct">0</div>
+                    <div class="text-xs text-gray-400 mt-2">共 20 题</div>
+                </div>
+            </div>
+
+            <!-- 错题回顾 -->
+            <div class="w-full max-w-2xl bg-red-50 rounded-xl p-4 mb-8 text-left max-h-60 overflow-y-auto no-scrollbar">
+                <h4 class="font-bold text-red-700 mb-3"><i class="fas fa-times-circle mr-2"></i>错题回顾</h4>
+                <div id="wrong-answers-list" class="space-y-3 text-sm">
+                    <!-- 错题将在此插入 -->
+                    <div class="text-gray-500 italic">恭喜！本关无错题。</div>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="backToMenu()" class="btn-primary text-white font-bold py-2 px-8 rounded-lg shadow-md">
+                    返回主页查看排行 <i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 数据部分：60道禁毒知识题目，分为3关 ---
+        // 第1关：基础常识 (20题)
+        // 第2关：法律法规 (20题)
+        // 第3关：综合进阶 (20题)
+        
+        const levelsData = [
+            // Level 1: 基础常识
+            [
+                { q: "国际禁毒日是每年的哪一天？", options: ["6月3日", "6月26日", "12月1日", "5月31日"], a: 1 },
+                { q: "我国《刑法》规定，走私、贩卖、运输、制造毒品，无论数量多少，都应当追究刑事责任。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种物质不属于传统毒品？", options: ["海洛因", "鸦片", "冰毒", "吗啡"], a: 2 },
+                { q: "“K粉”的主要成分是氯胺酮，它属于哪类毒品？", options: ["抑制剂", "兴奋剂", "致幻剂", "麻醉剂"], a: 2 },
+                { q: "吸毒成瘾人员应当进行什么治疗？", options: ["社区康复", "强制隔离戒毒", "自愿戒毒", "以上都是"], a: 3 },
+                { q: "下列哪项不是吸毒的危害？", options: ["毁灭自己", "祸及家庭", "危害社会", "增强免疫力"], a: 3 },
+                { q: "第一次吸毒后，很容易产生依赖性的毒品是？", options: ["大麻", "海洛因", "摇头丸", "咖啡因"], a: 1 },
+                { q: "罂粟是制取鸦片的主要原料，我国法律禁止非法种植罂粟。", options: ["正确", "错误"], a: 0 },
+                { q: "“笑气”的化学名称是？", options: ["一氧化二氮", "二氧化氮", "氮气", "氦气"], a: 0 },
+                { q: "下列哪种行为属于吸毒？", options: ["注射海洛因", "吸食冰毒", "吞服摇头丸", "以上都是"], a: 3 },
+                { q: "毒品预防教育的首要重点对象是？", options: ["老年人", "青少年", "妇女", "残疾人"], a: 1 },
+                { q: "长期吸食鸦片可使人先天免疫力丧失。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种毒品被称为“毒品之王”？", options: ["大麻", "海洛因", "可卡因", "冰毒"], a: 1 },
+                { q: "容留他人吸食、注射毒品的，构成什么罪？", options: ["包庇罪", "容留他人吸毒罪", "窝藏罪", "不构成犯罪"], a: 1 },
+                { q: "冰毒的毒性主要损害人体的哪个系统？", options: ["消化系统", "呼吸系统", "中枢神经系统", "循环系统"], a: 2 },
+                { q: "下列哪项是新型毒品的特点？", options: ["人工合成", "隐蔽性强", "流行范围广", "以上都是"], a: 3 },
+                { q: "大麻植物中主要的精神活性物质是？", options: ["四氢大麻酚", "吗啡", "可待因", "麻黄碱"], a: 0 },
+                { q: "吸毒人员主动到公安机关登记或者到有资质的医疗机构接受戒毒治疗的，不予处罚。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种物品可能含有毒品成分？", options: ["跳跳糖", "奶茶粉", "邮票", "以上都有可能"], a: 3 },
+                { q: "世界上的三大毒品产地是指金三角、金新月和？", options: ["银三角", "铜三角", "铁三角", "黑三角"], a: 0 }
+            ],
+            // Level 2: 法律法规
+            [
+                { q: "我国《禁毒法》规定，禁毒工作实行什么方针？", options: ["预防为主，综合治理", "禁种、禁制、禁贩、禁吸并举", "以上都是", "以上都不是"], a: 2 },
+                { q: "非法持有鸦片多少克以上构成犯罪？", options: ["100克", "200克", "500克", "1000克"], a: 1 },
+                { q: "非法持有海洛因或者甲基苯丙胺多少克以上构成犯罪？", options: ["5克", "10克", "15克", "20克"], a: 1 },
+                { q: "走私、贩卖、运输、制造鸦片一千克以上、海洛因或者甲基苯丙胺五十克以上，最高可判处？", options: ["有期徒刑", "无期徒刑", "死刑", "拘役"], a: 2 },
+                { q: "下列哪种行为属于贩毒？", options: ["无偿赠送毒品给他人", "有偿提供毒品给他人", "携带毒品过境", "以上都是"], a: 3 },
+                { q: "未成年人吸毒，责令其父母或者其他监护人加以管教；必要时，可以依法决定？", options: ["行政拘留", "强制隔离戒毒", "社区戒毒", "罚款"], a: 2 },
+                { q: "学校发现学生吸毒，应当立即向谁报告？", options: ["教育局", "公安机关", "家长", "以上都是"], a: 3 },
+                { q: "旅馆业、饮食服务业、文化娱乐业等单位的人员，在单位内发生吸毒行为，未向公安机关报告的，由公安机关处？", options: ["警告", "罚款", "拘留", "吊销执照"], a: 1 },
+                { q: "下列哪种药物属于国家管制的精神药品？", options: ["阿司匹林", "三唑仑", "维生素C", "板蓝根"], a: 1 },
+                { q: "我国对毒品违法犯罪行为坚持“零容忍”态度。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪项不是禁毒志愿者的职责？", options: ["宣传禁毒知识", "协助警方查毒", "帮教吸毒人员", "执法抓捕"], a: 3 },
+                { q: "吸毒人员戒断后复吸率很高，主要原因是心瘾难除。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种行为属于非法持有毒品？", options: ["持有鸦片不满200克", "持有海洛因不满10克", "持有甲基苯丙胺不满10克", "以上都是"], a: 3 },
+                { q: "“芬太尼”属于哪类毒品？", options: ["阿片类", "苯丙胺类", "大麻类", "可卡因类"], a: 0 },
+                { q: "禁毒是全社会的共同责任。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪项不是毒品的特征？", options: ["依赖性", "耐受性", "非法性", "公益性"], a: 3 },
+                { q: "发现有人吸毒，应该怎么做？", options: ["视而不见", "一起参与", "及时报警", "帮他保密"], a: 2 },
+                { q: "下列哪种毒品俗称“丧尸药”？", options: ["甲卡西酮", "芬太尼", "曲马多", "杜冷丁"], a: 0 },
+                { q: "吸毒会导致人格扭曲、道德沦丧。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种行为最容易导致艾滋病传播？", options: ["共用注射器吸毒", "握手", "共用餐具", "拥抱"], a: 0 }
+            ],
+            // Level 3: 综合进阶 (混合识别、危害、新精神活性物质等)
+            [
+                { q: "海洛因是从哪种植物中提取加工的？", options: ["大麻", "古柯", "罂粟", "麻黄草"], a: 2 },
+                { q: "可卡因是从哪种植物中提取的？", options: ["罂粟", "古柯叶", "大麻叶", "烟草"], a: 1 },
+                { q: "下列哪种毒品具有强烈的致幻作用？", options: ["LSD", "海洛因", "冰毒", "鸦片"], a: 0 },
+                { q: "“浴盐”是一种新型合成毒品，其主要成分是？", options: ["卡西酮类", "苯丙胺类", "阿片类", "大麻类"], a: 0 },
+                { q: "“神仙水”主要成分是？", options: ["γ-羟基丁酸", "氯胺酮", "甲基苯丙胺", "大麻"], a: 0 },
+                { q: "下列哪种毒品俗称“快乐水”？", options: ["含可待因复方口服液", "啤酒", "可乐", "雪碧"], a: 0 },
+                { q: "下列哪种毒品俗称“蓝精灵”？", options: ["氟硝西泮", "地西泮", "艾司唑仑", "劳拉西泮"], a: 0 },
+                { q: "摇头丸具有兴奋和致幻双重作用。", options: ["正确", "错误"], a: 0 },
+                { q: "吗啡是从鸦片中分离出来的一种生物碱。", options: ["正确", "错误"], a: 0 },
+                { q: "下列哪种毒品被称为“百毒之王”？", options: ["海洛因", "冰毒", "大麻", "可卡因"], a: 0 },
+                { q: "大麻俗称？", options: ["叶子", "粉末", "石头", "水"], a: 0 },
+                { q: "冰毒的外观通常像？", options: ["冰糖", "面粉", "树叶", "药片"], a: 0 },
+                { q: "下列哪种毒品俗称“邮票”？", options: ["LSD", "海洛因", "冰毒", "大麻"], a: 0 },
+                { q: "“咔哇潮饮”中含有哪种违禁成分？", options: ["γ-羟基丁酸", "酒精", "咖啡因", "糖分"], a: 0 },
+                { q: "下列哪种毒品俗称“肉桂粉”？", options: ["合成大麻素", "海洛因", "冰毒", "可卡因"], a: 0 },
+                { q: "“聪明药”主要成分是？", options: ["哌醋甲酯", "咖啡因", "葡萄糖", "维生素"], a: 0 },
+                { q: "下列哪种毒品俗称“柴火”？", options: ["合成大麻素", "海洛因", "冰毒", "可卡因"], a: 0 },
+                { q: "“小树枝”中含有哪种违禁成分？", options: ["合成大麻素", "海洛因", "冰毒", "可卡因"], a: 0 },
+                { q: "下列哪种毒品俗称“彩虹烟”？", options: ["合成大麻素", "海洛因", "冰毒", "可卡因"], a: 0 },
+                { q: "“娜塔莎”主要成分是？", options: ["合成大麻素", "海洛因", "冰毒", "可卡因"], a: 0 }
+            ]
+        ];
+
+        // --- 状态管理 ---
+        let currentState = {
+            username: '',
+            currentLevel: 0, // 0-2
+            currentQuestionIndex: 0,
+            levelScore: 0,
+            totalScore: 0,
+            selectedOption: null,
+            wrongAnswers: [], // 存储本关错题
+        };
+
+        // --- DOM 元素引用 ---
+        const pages = {
+            login: document.getElementById('page-login'),
+            levelSelect: document.getElementById('page-level-select'),
+            quiz: document.getElementById('page-quiz'),
+            levelResult: document.getElementById('page-level-result')
+        };
+        const els = {
+            usernameInput: document.getElementById('username-input'),
+            loginError: document.getElementById('login-error'),
+            leaderboardList: document.getElementById('leaderboard-list'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            progressBar: document.getElementById('progress-bar'),
+            questionCounter: document.getElementById('question-counter'),
+            scoreDisplay: document.getElementById('score-display'),
+            nextBtn: document.getElementById('next-btn'),
+            displayUsername: document.getElementById('display-username'),
+            userInfo: document.getElementById('user-info'),
+            resultLevelNum: document.getElementById('result-level-num'), // Note: Removed specific level num display in result for generic "Level Complete" or can add back if needed. Keeping simple.
+            levelScore: document.getElementById('level-score'),
+            levelCorrect: document.getElementById('level-correct'),
+            wrongAnswersList: document.getElementById('wrong-answers-list')
+        };
+
+        // --- 初始化 ---
+        window.onload = function() {
+            renderLeaderboard();
+        };
+
+        // --- 核心逻辑 ---
+
+        function switchPage(pageName) {
+            Object.values(pages).forEach(el => el.classList.add('hidden'));
+            pages[pageName].classList.remove('hidden');
+        }
+
+        function showLevelSelect() {
+            const name = els.usernameInput.value.trim();
+            if (!name) {
+                els.loginError.classList.remove('hidden');
+                return;
+            }
+            els.loginError.classList.add('hidden');
+            currentState.username = name;
+            els.displayUsername.textContent = name;
+            els.userInfo.classList.remove('hidden');
+            switchPage('levelSelect');
+        }
+
+        function backToMenu() {
+            els.userInfo.classList.add('hidden');
+            switchPage('login');
+            renderLeaderboard();
+        }
+
+        function startLevel(levelIndex) {
+            currentState.currentLevel = levelIndex;
+            currentState.currentQuestionIndex = 0;
+            currentState.levelScore = 0;
+            currentState.wrongAnswers = [];
+            currentState.selectedOption = null;
+
+            loadQuestion();
+            switchPage('quiz');
+        }
+
+        function loadQuestion() {
+            const questions = levelsData[currentState.currentLevel];
+            const qData = questions[currentState.currentQuestionIndex];
+            
+            // 更新进度
+            const progress = ((currentState.currentQuestionIndex + 1) / questions.length) * 100;
+            els.progressBar.style.width = `${progress}%`;
+            els.questionCounter.textContent = `第 ${currentState.currentQuestionIndex + 1} / ${questions.length} 题`;
+            els.scoreDisplay.textContent = `本关得分: ${currentState.levelScore}`;
+
+            // 渲染题目
+            els.questionText.textContent = qData.q;
+            
+            // 渲染选项
+            els.optionsContainer.innerHTML = '';
+            qData.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option-card p-4 rounded-lg bg-white border border-gray-200 shadow-sm flex items-center gap-3';
+                div.onclick = () => selectOption(idx, div);
+                div.innerHTML = `
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs font-bold text-gray-500 option-letter">
+                        ${String.fromCharCode(65 + idx)}
+                    </div>
+                    <span class="text-gray-700">${opt}</span>
+                `;
+                els.optionsContainer.appendChild(div);
+            });
+
+            // 重置按钮状态
+            currentState.selectedOption = null;
+            els.nextBtn.disabled = true;
+            els.nextBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            els.nextBtn.classList.remove('btn-primary', 'text-white', 'shadow-md');
+            els.nextBtn.textContent = currentState.currentQuestionIndex === questions.length - 1 ? '提交本关' : '下一题';
+        }
+
+        function selectOption(index, element) {
+            // 移除其他选中状态
+            const options = els.optionsContainer.children;
+            for (let opt of options) {
+                opt.classList.remove('selected');
+                opt.querySelector('.option-letter').classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                opt.querySelector('.option-letter').classList.add('border-gray-300', 'text-gray-500');
+            }
+
+            // 添加当前选中状态
+            element.classList.add('selected');
+            const letter = element.querySelector('.option-letter');
+            letter.classList.remove('border-gray-300', 'text-gray-500');
+            letter.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+
+            currentState.selectedOption = index;
+
+            // 启用下一题按钮
+            els.nextBtn.disabled = false;
+            els.nextBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            els.nextBtn.classList.add('btn-primary', 'text-white', 'shadow-md');
+        }
+
+        function nextQuestion() {
+            if (currentState.selectedOption === null) return;
+
+            const questions = levelsData[currentState.currentLevel];
+            const currentQ = questions[currentState.currentQuestionIndex];
+            const isCorrect = currentState.selectedOption === currentQ.a;
+            
+            if (isCorrect) {
+                currentState.levelScore += 5; // 每题5分，每关满分100
+            } else {
+                // 记录错题
+                currentState.wrongAnswers.push({
+                    question: currentQ.q,
+                    userAnswer: currentQ.options[currentState.selectedOption],
+                    rightAnswer: currentQ.options[currentQ.a]
+                });
+            }
+
+            // 判断是否结束本关
+            if (currentState.currentQuestionIndex < questions.length - 1) {
+                currentState.currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                finishLevel();
+            }
+        }
+
+        function finishLevel() {
+            // 渲染关卡结算页
+            els.levelScore.textContent = currentState.levelScore;
+            els.levelCorrect.textContent = 20 - currentState.wrongAnswers.length;
+            
+            // 渲染错题
+            if (currentState.wrongAnswers.length === 0) {
+                els.wrongAnswersList.innerHTML = '<div class="text-green-600 font-medium"><i class="fas fa-check-circle mr-2"></i>恭喜！本关无错题，太棒了！</div>';
+            } else {
+                let html = '';
+                currentState.wrongAnswers.forEach((item, idx) => {
+                    html += `
+                        <div class="bg-white p-3 rounded border-l-4 border-red-500">
+                            <div class="font-medium text-gray-800 mb-1">${idx + 1}. ${item.question}</div>
+                            <div class="text-red-500 text-xs"><span class="font-bold">你的答案:</span> ${item.userAnswer}</div>
+                            <div class="text-green-600 text-xs"><span class="font-bold">正确答案:</span> ${item.rightAnswer}</div>
+                        </div>
+                    `;
+                });
+                els.wrongAnswersList.innerHTML = html;
+            }
+
+            // 保存成绩并更新排行榜
+            saveScore(currentState.username, currentState.levelScore, currentState.currentLevel + 1);
+
+            switchPage('levelResult');
+        }
+
+        // --- 本地存储与排行榜 ---
+
+        function saveScore(name, score, level) {
+            let leaderboard = JSON.parse(localStorage.getItem('drugQuizLeaderboard_v3') || '[]');
+            leaderboard.push({
+                name: name,
+                score: score,
+                level: level,
+                date: new Date().toLocaleDateString()
+            });
+            // 排序：分数高在前
+            leaderboard.sort((a, b) => b.score - a.score);
+            // 只保留前10名
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('drugQuizLeaderboard_v3', JSON.stringify(leaderboard));
+        }
+
+        function renderLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('drugQuizLeaderboard_v3') || '[]');
+            const container = els.leaderboardList;
+            
+            if (leaderboard.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-10">暂无排名数据</div>';
+                return;
+            }
+
+            let html = '<ul class="space-y-2">';
+            leaderboard.forEach((item, index) => {
+                let medal = '';
+                let colorClass = 'text-gray-600';
+                if (index === 0) { medal = '<i class="fas fa-medal text-yellow-400"></i>'; colorClass = 'text-yellow-600 font-bold'; }
+                else if (index === 1) { medal = '<i class="fas fa-medal text-gray-400"></i>'; colorClass = 'text-gray-600 font-bold'; }
+                else if (index === 2) { medal = '<i class="fas fa-medal text-orange-400"></i>'; colorClass = 'text-orange-600 font-bold'; }
+                else { medal = `<span class="w-5 text-center text-gray-400 text-sm">${index + 1}</span>`; }
+
+                html += `
+                    <li class="flex justify-between items-center bg-white p-3 rounded shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3">
+                            ${medal}
+                            <span class="${colorClass}">${item.name}</span>
+                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">第${item.level}关</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-blue-600">${item.score}分</span>
+                            <span class="text-xs text-gray-400 block">${item.date}</span>
+                        </div>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function clearLeaderboard() {
+            if(confirm('确定要清空排行榜吗？')) {
+                localStorage.removeItem('drugQuizLeaderboard_v3');
+                renderLeaderboard();
+            }
+        }
+    </script>
+</body>
+</html>
